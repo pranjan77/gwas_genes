@@ -1,0 +1,61 @@
+#
+# define display information
+#
+name: GWAS Genes Analysis
+
+tooltip: |
+    Analyze GWAS data to get a gene-centric view of SNPs
+
+screenshots: []
+
+icon: icon.png
+
+#
+# define a set of similar apps that might be useful to the user
+#
+suggestions:
+    apps:
+        related:
+            []
+        next:
+            []
+
+#
+# Configure the display and description of parameters
+#
+parameters :
+    gwas_association_objects :
+        ui-name : |
+            GWAS Association Objects
+        short-hint : |
+            One or more KBaseGwasData.Associations objects to analyze
+        long-hint  : |
+            Select one or more KBaseGwasData.Associations objects that contain GWAS association data to be analyzed with the genome
+    
+    genome_ref :
+        ui-name : |
+            Genome
+        short-hint : |
+            The genome to use for gene-centric analysis of GWAS SNPs
+        long-hint  : |
+            Select a KBaseGenomes.Genome object that corresponds to the organism for which the GWAS analysis was performed
+
+description : |
+    <p>This app provides a gene-centric view of GWAS (Genome-Wide Association Studies) data by analyzing the relationship between SNPs (Single Nucleotide Polymorphisms) and genes in the genome.</p>
+    
+    <p>The app takes one or more KBaseGwasData.Associations objects and a KBaseGenomes.Genome object as input. It processes the GWAS data to identify SNPs and their associations with genes in the genome. The results are presented in a downloadable report that includes JSON files of the raw data as well as a summary text file.</p>
+    
+    <p><strong>Input:</strong></p>
+    <ul>
+        <li>GWAS Association Objects: One or more KBaseGwasData.Associations objects containing GWAS data</li>
+        <li>Genome: A KBaseGenomes.Genome object corresponding to the GWAS data</li>
+    </ul>
+    
+    <p><strong>Output:</strong></p>
+    <ul>
+        <li>A report containing processed data files and a summary of the analysis</li>
+        <li>JSON files of the processed genome and GWAS data</li>
+        <li>A summary text file detailing the objects processed</li>
+    </ul>
+    
+    <p>The app is useful for researchers who want to gain insights into the genetic basis of traits by examining the relationship between SNPs identified in GWAS studies and their location relative to genes in the genome.</p>
