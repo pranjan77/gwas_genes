@@ -105,8 +105,8 @@ class gwas_genes:
         
         
         # Set analysis parameters
-        distance_threshold = 10000  # 10kb
-        pvalue_threshold = 1E-5    # p < 0.001
+        distance_threshold = 5000  # 10kb
+        pvalue_threshold = 1E-3    # p < 0.001
         all_csvs = list(); 
         for i, gwas_file in enumerate(gwas_files):
             # Convert GWAS file to SNP file format expected by the analysis function
@@ -142,7 +142,7 @@ class gwas_genes:
         csv_zip_dir = os.path.join(self.shared_folder, "results_csv")
         output_dir1 = os.path.join(self.shared_folder, "results")
 
-        zip_path = copy_and_zip_csvs(all_csvs, csv_zip_dir, result_csvs.zip)
+        zip_path = copy_and_zip_csvs(all_csvs, csv_zip_dir, "result_csvs.zip")
 
         os.makedirs(output_dir1, exist_ok=True)
         for csv_file in all_csvs:
