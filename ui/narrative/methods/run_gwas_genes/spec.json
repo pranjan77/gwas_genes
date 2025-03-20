@@ -47,10 +47,12 @@
                     "target_property": "workspace_id"
                 },{
                     "input_parameter": "gwas_association_objects",
-                    "target_property": "gwas_association_objects"
+                    "target_property": "gwas_association_objects",
+                    "target_type_transform": "resolved-ref"
                 },{
                     "input_parameter": "genome_ref",
-                    "target_property": "genome_ref"
+                    "target_property": "genome_ref",
+                    "target_type_transform": "resolved-ref"
                 }
             ],
             "output_mapping": [
