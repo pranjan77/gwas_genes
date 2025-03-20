@@ -10,6 +10,9 @@ from installed_clients.KBaseReportClient import KBaseReport
 from installed_clients.WorkspaceClient import Workspace
 from installed_clients.DataFileUtilClient import DataFileUtil
 from .Utils.get_gene_function import analyze_snps_and_genes
+from .Utils.create_html_tables import create_datatable_html, create_index_page
+from .Utils.html_report_creator import HTMLReportCreator
+from .Utils.zip_files import copy_and_zip_csvs
 #END_HEADER
 
 
@@ -42,7 +45,7 @@ class gwas_genes:
         #BEGIN_CONSTRUCTOR
         self.callback_url = os.environ['SDK_CALLBACK_URL']
         self.shared_folder = config['scratch']
-        self.shared_folder = "/kb/module/work"
+        #self.shared_folder = "/kb/module/work"
         self.ws_url = config['workspace-url']
         self.ws_client = Workspace(self.ws_url)
         self.dfu = DataFileUtil(self.callback_url)
@@ -78,10 +81,10 @@ class gwas_genes:
         
         logging.info(f"Downloading Genome ref: {genome_ref}")
         # Get and write genome data
-        #genome_object_data = self.dfu.get_objects({'object_refs': [genome_ref]})['data'][0]['data']
+        genome_object_data = self.dfu.get_objects({'object_refs': [genome_ref]})['data'][0]['data']
         genome_file = os.path.join(output_dir, 'genome_data.json')
-        #with open(genome_file, 'w') as f:
-        #    f.write(json.dumps(genome_object_data, indent=4))
+        with open(genome_file, 'w') as f:
+            f.write(json.dumps(genome_object_data, indent=4))
         
         # Process each GWAS association object and save to separate files
         gwas_files = []
@@ -103,25 +106,14 @@ class gwas_genes:
         
         # Set analysis parameters
         distance_threshold = 10000  # 10kb
-        pvalue_threshold = 0.001    # p < 0.001
-        
+        pvalue_threshold = 1E-5    # p < 0.001
+        all_csvs = list(); 
         for i, gwas_file in enumerate(gwas_files):
             # Convert GWAS file to SNP file format expected by the analysis function
             # First, extract just the data part we need
             with open(gwas_file, 'r') as f:
                 gwas_data = json.load(f)
 
-            result = analyze_snps_and_genes(
-                    gene_file=genome_file,
-                    snp_file=gwas_file,
-                    distance_threshold=distance_threshold,
-                    pvalue_threshold=pvalue_threshold,
-                    output_prefix=os.path.join(output_dir, f'gwas_analysis_{i}'),
-                    save_output=True,
-                    verbose=True,
-                    save_gene_function= False  # Only save gene function for first analysis
-                )
-            
             
             # Run the analysis for this GWAS file
             try:
@@ -137,7 +129,8 @@ class gwas_genes:
                     save_gene_function= False  # Only save gene function for first analysis
                 )
                 
-                all_results.append(result)
+                all_csvs.append(result['snp_analysis_file'])
+                all_csvs.append(result['gene_centric_file'])
                 
                 # Log the summary
                 logging.info(f"Analysis {i+1} for {gwas_association_objects[i]} complete")
@@ -145,11 +138,23 @@ class gwas_genes:
                 
             except Exception as e:
                 logging.error(f"Error analyzing GWAS data {i}: {str(e)}")
-                
-        # Create a combined summary file
-        summary_file = os.path.join(output_dir, 'analysis_summary.txt')
-       
+        
+        csv_zip_dir = os.path.join(self.shared_folder, "results_csv")
+        output_dir1 = os.path.join(self.shared_folder, "results")
+
+        zip_path = copy_and_zip_csvs(all_csvs, csv_zip_dir, result_csvs.zip)
+
+        os.makedirs(output_dir1, exist_ok=True)
+        for csv_file in all_csvs:
+            create_datatable_html(csv_file, output_dir1, rows_per_page=10)
+        create_index_page(csv_files, output_dir1, "index.html")
         output = {}
+        report_creator = HTMLReportCreator(self.callback_url)
+        objects_created = []
+        output = report_creator.create_html_report(output_dir1, workspace, objects_created, zip_path)
+        logging.info (output)
+
+
         
         #output = {
         #    'report_name': report_info['name'],
